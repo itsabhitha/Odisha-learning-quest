@@ -6,51 +6,62 @@ import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { ArrowLeft, Lightbulb, Zap, CheckCircle, RotateCcw } from 'lucide-react';
 
-interface CircuitComponentProps {
-  id: string;
-  type: 'battery' | 'resistor' | 'led' | 'wire';
-  position: { x: number; y: number };
-  isPlaced: boolean;
-  isCorrect?: boolean;
-}
-
-const CIRCUIT_COMPONENTS = [
-  { id: 'battery1', type: 'battery' as const, symbol: '🔋', name: 'Battery' },
-  { id: 'resistor1', type: 'resistor' as const, symbol: '⚡', name: 'Resistor' },
-  { id: 'led1', type: 'led' as const, symbol: '💡', name: 'LED' },
-  { id: 'wire1', type: 'wire' as const, symbol: '━', name: 'Wire' },
+// Simple components for the circuit game
+// Each component has an ID, type (what it is), symbol (emoji), and name
+const COMPONENTS = [
+  { id: 'battery1', type: 'battery', symbol: '🔋', name: 'Battery' },
+  { id: 'resistor1', type: 'resistor', symbol: '⚡', name: 'Resistor' },
+  { id: 'led1', type: 'led', symbol: '💡', name: 'LED' },
+  { id: 'wire1', type: 'wire', symbol: '━', name: 'Wire' },
 ];
 
-const CIRCUIT_SLOTS = [
+// Where components should be placed on the circuit
+// Each slot accepts a specific type of component
+const SLOTS = [
   { id: 'slot1', position: { x: 100, y: 100 }, accepts: 'battery', label: 'Power Source' },
   { id: 'slot2', position: { x: 200, y: 100 }, accepts: 'wire', label: 'Connection' },
   { id: 'slot3', position: { x: 300, y: 100 }, accepts: 'resistor', label: 'Resistance' },
   { id: 'slot4', position: { x: 400, y: 100 }, accepts: 'led', label: 'Load' },
 ];
 
-export const PhysicsQuest: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const [draggedItem, setDraggedItem] = useState<string | null>(null);
-  const [placedComponents, setPlacedComponents] = useState<Record<string, string>>({});
-  const [showHint, setShowHint] = useState(false);
-  const [questProgress, setQuestProgress] = useState(0);
-  const [collectedGems, setCollectedGems] = useState(0);
-  const [circuitComplete, setCircuitComplete] = useState(false);
+// Main Physics Quest component
+// onBack is a function that takes us back to the home page
+export const PhysicsQuest = ({ onBack }) => {
+  // State variables - these remember information while the game is running
+  const [draggedItem, setDraggedItem] = useState(null); // Which component is being dragged
+  const [placedComponents, setPlacedComponents] = useState({}); // Which components are placed where
+  const [showHint, setShowHint] = useState(false); // Should we show the hint?
+  const [questProgress, setQuestProgress] = useState(0); // How much of the quest is complete (0-100%)
+  const [collectedGems, setCollectedGems] = useState(0); // How many gems the student earned
+  const [circuitComplete, setCircuitComplete] = useState(false); // Is the circuit finished?
 
+  // This runs every time placedComponents changes
+  // It checks how many components are placed correctly and updates progress
   useEffect(() => {
-    const correctPlacements = Object.entries(placedComponents).filter(([slotId, componentId]) => {
-      const slot = CIRCUIT_SLOTS.find(s => s.id === slotId);
-      const component = CIRCUIT_COMPONENTS.find(c => c.id === componentId);
-      return slot && component && slot.accepts === component.type;
-    }).length;
+    // Count how many components are in the right place
+    let correctCount = 0;
+    
+    // Check each slot to see if the right component is there
+    for (const [slotId, componentId] of Object.entries(placedComponents)) {
+      const slot = SLOTS.find(s => s.id === slotId);
+      const component = COMPONENTS.find(c => c.id === componentId);
+      
+      // If the component type matches what the slot expects, it's correct!
+      if (slot && component && slot.accepts === component.type) {
+        correctCount++;
+      }
+    }
 
-    const progress = (correctPlacements / CIRCUIT_SLOTS.length) * 100;
+    // Calculate progress as a percentage (0 to 100)
+    const progress = (correctCount / SLOTS.length) * 100;
     setQuestProgress(progress);
 
+    // If all components are correct and we haven't finished yet, celebrate!
     if (progress === 100 && !circuitComplete) {
       setCircuitComplete(true);
-      setCollectedGems(15);
+      setCollectedGems(15); // Give the student 15 gems!
       
-      // Simulate gem collection animation
+      // Add a fun animation after a short delay
       setTimeout(() => {
         const gemElements = document.querySelectorAll('.gem-reward');
         gemElements.forEach((gem, index) => {
@@ -60,27 +71,32 @@ export const PhysicsQuest: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         });
       }, 500);
     }
-  }, [placedComponents, circuitComplete]);
+  }, [placedComponents, circuitComplete]); // Run this when placedComponents or circuitComplete changes
 
-  const handleDragStart = (e: React.DragEvent, componentId: string) => {
+  // When student starts dragging a component
+  const handleDragStart = (e, componentId) => {
     setDraggedItem(componentId);
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
+  // When student drags over a slot (needed for drag and drop to work)
+  const handleDragOver = (e) => {
     e.preventDefault();
   };
 
-  const handleDrop = (e: React.DragEvent, slotId: string) => {
+  // When student drops a component into a slot
+  const handleDrop = (e, slotId) => {
     e.preventDefault();
     if (draggedItem) {
+      // Update which components are placed where
       setPlacedComponents(prev => ({
         ...prev,
         [slotId]: draggedItem
       }));
-      setDraggedItem(null);
+      setDraggedItem(null); // Clear the dragged item
     }
   };
 
+  // Reset the whole circuit to start over
   const resetCircuit = () => {
     setPlacedComponents({});
     setQuestProgress(0);
@@ -88,17 +104,20 @@ export const PhysicsQuest: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     setCollectedGems(0);
   };
 
-  const isComponentPlaced = (componentId: string) => {
+  // Check if a component is already placed somewhere
+  const isComponentPlaced = (componentId) => {
     return Object.values(placedComponents).includes(componentId);
   };
 
-  const getSlotComponent = (slotId: string) => {
+  // Find which component is in a specific slot
+  const getSlotComponent = (slotId) => {
     const componentId = placedComponents[slotId];
-    return componentId ? CIRCUIT_COMPONENTS.find(c => c.id === componentId) : null;
+    return componentId ? COMPONENTS.find(c => c.id === componentId) : null;
   };
 
-  const isSlotCorrect = (slotId: string) => {
-    const slot = CIRCUIT_SLOTS.find(s => s.id === slotId);
+  // Check if the component in a slot is the correct one
+  const isSlotCorrect = (slotId) => {
+    const slot = SLOTS.find(s => s.id === slotId);
     const component = getSlotComponent(slotId);
     return slot && component && slot.accepts === component.type;
   };
@@ -197,8 +216,8 @@ export const PhysicsQuest: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                   />
                 </svg>
 
-                {/* Component Slots */}
-                {CIRCUIT_SLOTS.map((slot) => {
+                {/* Component Slots - where students drop the components */}
+                {SLOTS.map((slot) => {
                   const component = getSlotComponent(slot.id);
                   const isCorrect = isSlotCorrect(slot.id);
                   
@@ -278,7 +297,7 @@ export const PhysicsQuest: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               </h4>
               
               <div className="space-y-3">
-                {CIRCUIT_COMPONENTS.map((component) => (
+                {COMPONENTS.map((component) => (
                   <div
                     key={component.id}
                     draggable={!isComponentPlaced(component.id)}

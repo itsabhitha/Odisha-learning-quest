@@ -22,7 +22,12 @@ export const MainApp: React.FC = () => {
       case 'teacher-dashboard':
         return <TeacherDashboard onBack={() => setCurrentView('home')} />;
       default:
-        return <HomePage onStartPhysicsQuest={() => setCurrentView('physics-quest')} />;
+        return (
+          <HomePage 
+            onStartPhysicsQuest={() => setCurrentView('physics-quest')} 
+            onOpenTeacherDashboard={() => setCurrentView('teacher-dashboard')}
+          />
+        );
     }
   };
 

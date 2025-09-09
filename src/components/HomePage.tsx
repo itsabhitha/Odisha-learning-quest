@@ -10,39 +10,39 @@ import { Badge } from '@/components/ui/badge';
 import { MapPin, Trophy, Users, Zap } from 'lucide-react';
 import odishaMap from '@/assets/odisha-map.jpg';
 
-// Sample student data
-const studentData = {
+// Student's information - like a profile
+const studentInfo = {
   name: "Aarav Kumar",
   level: 12,
-  gems: { ruby: 45, emerald: 32, sapphire: 38, topaz: 51 },
+  gems: { ruby: 45, emerald: 32, sapphire: 38, topaz: 51 }, // Different colored gems earned
   monuments: [
     {
       name: "Konark Sun Temple",
-      progress: 65,
-      totalGems: 150,
-      currentGems: 98
+      progress: 65, // How much of the temple is rebuilt (65%)
+      totalGems: 150, // Total gems needed to complete
+      currentGems: 98 // Gems collected so far
     }
   ],
-  currentStreak: 7
+  streakDays: 7 // How many days in a row they've studied
 };
 
-// Sample quest data for different subjects
-const subjectQuests = {
+// All the learning quests available in each subject
+const allQuests = {
   Physics: [
     {
-      title: "Electric Circuits",
-      chapter: "Current & Resistance",
-      difficulty: 2 as const,
-      isUnlocked: true,
-      isCompleted: true,
-      progress: 100,
-      gemReward: 15,
-      estimatedTime: "25 min"
+      title: "Electric Circuits", // Quest name
+      chapter: "Current & Resistance", // Which chapter it belongs to
+      difficulty: 2, // How hard it is (1=easy, 2=medium, 3=hard)
+      isUnlocked: true, // Can the student start this quest?
+      isCompleted: true, // Has the student finished this quest?
+      progress: 100, // How much of the quest is done (100% = finished)
+      gemReward: 15, // How many gems you get for completing it
+      estimatedTime: "25 min" // How long it takes to complete
     },
     {
       title: "Magnetic Fields", 
       chapter: "Electromagnetism",
-      difficulty: 3 as const,
+      difficulty: 3,
       isUnlocked: true,
       isCompleted: false,
       progress: 60,
@@ -52,8 +52,8 @@ const subjectQuests = {
     {
       title: "Wave Optics",
       chapter: "Light & Waves", 
-      difficulty: 3 as const,
-      isUnlocked: false,
+      difficulty: 3,
+      isUnlocked: false, // This quest is locked until previous ones are done
       isCompleted: false,
       progress: 0,
       gemReward: 25,
@@ -64,7 +64,7 @@ const subjectQuests = {
     {
       title: "Atomic Structure",
       chapter: "Atoms & Molecules",
-      difficulty: 1 as const,
+      difficulty: 1,
       isUnlocked: true,
       isCompleted: true,
       progress: 100,
@@ -74,7 +74,7 @@ const subjectQuests = {
     {
       title: "Chemical Bonding",
       chapter: "Molecular Chemistry",
-      difficulty: 2 as const,
+      difficulty: 2,
       isUnlocked: true,
       isCompleted: false,
       progress: 30,
@@ -86,7 +86,7 @@ const subjectQuests = {
     {
       title: "Plant Structure",
       chapter: "Botany Basics",
-      difficulty: 1 as const,
+      difficulty: 1,
       isUnlocked: true,
       isCompleted: true,
       progress: 100,
@@ -96,7 +96,7 @@ const subjectQuests = {
     {
       title: "Human Digestive System",
       chapter: "Human Biology",
-      difficulty: 2 as const,
+      difficulty: 2,
       isUnlocked: true,
       isCompleted: false,
       progress: 45,
@@ -108,7 +108,7 @@ const subjectQuests = {
     {
       title: "Quadratic Equations",
       chapter: "Algebra",
-      difficulty: 2 as const,
+      difficulty: 2,
       isUnlocked: true,
       isCompleted: true,
       progress: 100,
@@ -118,7 +118,7 @@ const subjectQuests = {
     {
       title: "Trigonometry",
       chapter: "Geometry & Angles",
-      difficulty: 3 as const,
+      difficulty: 3,
       isUnlocked: true,
       isCompleted: false,
       progress: 80,
@@ -128,12 +128,15 @@ const subjectQuests = {
   ]
 };
 
-export const HomePage: React.FC<{
-  onStartPhysicsQuest?: () => void;
-  onOpenTeacherDashboard?: () => void;
-}> = ({ onStartPhysicsQuest, onOpenTeacherDashboard }) => {
-  const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
+// This is our main HomePage component
+// It takes two functions as props: one to start physics quest, another to open teacher dashboard
+export const HomePage = ({ onStartPhysicsQuest, onOpenTeacherDashboard }) => {
+  // This keeps track of which subject the student clicked on (Physics, Chemistry, etc.)
+  // When no subject is selected, it's null
+  const [selectedSubject, setSelectedSubject] = useState(null);
   
+  // List of all subjects with their details
+  // Each subject has a name, emoji icon, region in Odisha, and gem color
   const subjects = [
     { name: 'Physics', icon: '⚡', region: 'Bhubaneswar', color: 'bg-gem-ruby' },
     { name: 'Chemistry', icon: '🧪', region: 'Cuttack', color: 'bg-gem-sapphire' },
@@ -170,13 +173,13 @@ export const HomePage: React.FC<{
               </Button>
               <Badge variant="outline" className="gap-2">
                 <Trophy className="w-4 h-4 text-accent" />
-                Level {studentData.level}
+                Level {studentInfo.level}
               </Badge>
               <Badge variant="outline" className="gap-2">
                 <Zap className="w-4 h-4 text-primary" />
-                {studentData.currentStreak} day streak
+                {studentInfo.streakDays} day streak
               </Badge>
-              <EduGemCounter gems={studentData.gems} />
+              <EduGemCounter gems={studentInfo.gems} />
               <LanguageToggle />
             </div>
           </div>
@@ -184,10 +187,10 @@ export const HomePage: React.FC<{
       </header>
 
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Welcome Section */}
+          {/* Welcome message for the student */}
         <section className="text-center mb-8">
           <h2 className="text-4xl md:text-5xl font-bold text-gradient-temple mb-4">
-            Welcome back, {studentData.name}! 👋
+            Welcome back, {studentInfo.name}! 👋
           </h2>
           <p className="text-xl text-muted-foreground mb-6 max-w-2xl mx-auto">
             Continue your epic learning journey across Odisha. Complete quests, collect EduGems, 
@@ -198,13 +201,13 @@ export const HomePage: React.FC<{
           <div className="md:hidden flex flex-wrap justify-center gap-3 mb-6">
             <Badge className="gap-2">
               <Trophy className="w-4 h-4" />
-              Level {studentData.level}
+              Level {studentInfo.level}
             </Badge>
             <Badge className="gap-2">
               <Zap className="w-4 h-4" />
-              {studentData.currentStreak} days
+              {studentInfo.streakDays} days
             </Badge>
-            <EduGemCounter gems={studentData.gems} className="text-sm" />
+            <EduGemCounter gems={studentInfo.gems} className="text-sm" />
           </div>
         </section>
 
@@ -305,7 +308,7 @@ export const HomePage: React.FC<{
                 </div>
                 
                 <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {subjectQuests[selectedSubject as keyof typeof subjectQuests]?.map((quest, index) => (
+            {allQuests[selectedSubject]?.map((quest, index) => (
                     <QuestCard
                       key={index}
                       title={quest.title}
@@ -339,7 +342,7 @@ export const HomePage: React.FC<{
               <h3 className="text-xl font-bold text-gradient-temple mb-4 flex items-center gap-2">
                 🏛️ Monument Progress
               </h3>
-              {studentData.monuments.map((monument, index) => (
+              {studentInfo.monuments.map((monument, index) => (
                 <Monument
                   key={index}
                   name={monument.name}
@@ -362,7 +365,7 @@ export const HomePage: React.FC<{
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Current Streak</span>
-                  <Badge>{studentData.currentStreak} days 🔥</Badge>
+                  <Badge>{studentInfo.streakDays} days 🔥</Badge>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Rank in Class</span>
