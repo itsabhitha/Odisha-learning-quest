@@ -31,63 +31,56 @@ export const Monument: React.FC<MonumentProps> = ({
     .find(stage => progress >= stage.threshold) || progressStages[0];
   
   return (
-    <div className={cn('relative bg-card rounded-2xl p-6 shadow-card', className)}>
-      {/* Monument Header */}
-      <div className="text-center mb-4">
-        <h3 className="text-xl font-bold text-gradient-temple mb-2">{name}</h3>
-        <p className="text-sm text-muted-foreground">{currentStage.label}</p>
-      </div>
-      
-      {/* Monument Visual */}
-      <div className="relative h-40 mb-4 rounded-lg overflow-hidden bg-gradient-sky">
-        <img 
-          src={konarkTemple}
-          alt={name}
-          className={cn(
-            'w-full h-full object-cover transition-all duration-1000',
-            currentStage.opacity,
-            progress === 100 && 'animate-monument-build'
+    <div className={cn('relative bg-card rounded-2xl p-4 shadow-card', className)}>
+      {/* Badge Container */}
+      <div className="flex flex-col items-center space-y-3">
+        
+        {/* Badge Circle */}
+        <div className="relative">
+          <div className={cn(
+            'w-20 h-20 rounded-full border-4 transition-all duration-1000 overflow-hidden',
+            progress === 100 
+              ? 'border-accent bg-gradient-to-br from-primary to-accent shadow-gem animate-pulse' 
+              : 'border-muted bg-muted/20'
+          )}>
+            <img 
+              src={konarkTemple}
+              alt={name}
+              className={cn(
+                'w-full h-full object-cover transition-all duration-1000',
+                progress === 100 ? 'opacity-100 scale-110' : currentStage.opacity
+              )}
+            />
+          </div>
+          
+          {/* Badge Completion Star */}
+          {progress === 100 && (
+            <div className="absolute -top-2 -right-2 bg-accent text-accent-foreground w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold animate-bounce">
+              ⭐
+            </div>
           )}
-        />
-        
-        {/* Progress Overlay */}
-        <div 
-          className="absolute bottom-0 left-0 right-0 bg-gradient-monument opacity-60 transition-all duration-1000"
-          style={{ height: `${progress}%` }}
-        />
-        
-        {/* Celebration Effect */}
-        {progress === 100 && (
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 animate-pulse" />
+        </div>
+
+        {/* Badge Info */}
+        <div className="text-center space-y-1">
+          <h3 className={cn(
+            'text-sm font-bold transition-colors',
+            progress === 100 ? 'text-accent' : 'text-muted-foreground'
+          )}>
+            {name} Badge
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            {progress === 100 ? '🏆 Earned!' : `${Math.round(progress)}% Complete`}
+          </p>
+        </div>
+
+        {/* Mini Progress Ring */}
+        {progress < 100 && (
+          <div className="text-xs text-muted-foreground">
+            {currentGems}/{totalGems} gems
+          </div>
         )}
       </div>
-      
-      {/* Progress Bar */}
-      <div className="space-y-2">
-        <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Progress</span>
-          <span className="font-bold text-primary">{Math.round(progress)}%</span>
-        </div>
-        
-        <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
-          <div 
-            className="h-full bg-gradient-temple transition-all duration-500 ease-out path-glow"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-        
-        <div className="flex justify-between text-xs text-muted-foreground">
-          <span>{currentGems} gems collected</span>
-          <span>{totalGems} gems needed</span>
-        </div>
-      </div>
-      
-      {/* Achievement Badge */}
-      {progress === 100 && (
-        <div className="absolute -top-3 -right-3 bg-accent text-accent-foreground px-3 py-1 rounded-full text-xs font-bold shadow-gem animate-bounce">
-          ✨ Complete!
-        </div>
-      )}
     </div>
   );
 };
